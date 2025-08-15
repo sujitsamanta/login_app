@@ -5,9 +5,14 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Mail;
-use App\Mail\Mail_Class;
+// use Illuminate\Support\Facades\Notification;
 
+use App\Notifications\UserMail;
+use App\Jobs\UserQueue;
+
+// use App\Notifications\UserMail;
+// use Illuminate\Support\Facades\Notification;
+// use App\Notifications\TestNotification;
 
 class User_Controller extends Controller
 {
@@ -20,13 +25,25 @@ class User_Controller extends Controller
             'password'=>'required|confirmed',
         ]);
         if($signin_data){
-            User::create($signin_data);
+            $user=User::create($signin_data);
 
-            $toemail=$request['email'];
-            $subject="Application status";
-            // $message="Application is succesfuly dun...";
+            // for($i=0; $i<=4; $i++){
+            // $user->notify(new UserMail());
 
-            Mail::to($toemail)->send(new Mail_Class($subject));
+            // }
+
+            $user->notify(new UserMail());
+
+            
+            // UserQueue::dispatch($user);
+
+            // Notification::route('mail', $request->email)
+            //     ->notify(new UserMail(
+            //         $request->subject,
+            //         $request->message
+            //     ));
+             
+          
             
             return redirect()->back()->with('alert','succesful' );
         }
